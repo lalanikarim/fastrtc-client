@@ -20,6 +20,7 @@ Client Side Javascript library for FastRTC Server
        additional_inputs_url: "/input_hook",
        additional_outputs_url: "/outputs",
        rtc_config: { iceServers: [] },
+       audioOutput = document.querySelector("audio"),
        enable_output_analyzer: true,
        debug: false,
    });
