@@ -4,6 +4,7 @@ function FastRTCClient(
     additional_inputs_url = "/input_hook",
     additional_outputs_url = "/outputs",
     rtc_config = {},
+    audioOutput = document.querySelector("audio"),
     enable_output_analyzer = true,
     debug = false,
   } = {},
