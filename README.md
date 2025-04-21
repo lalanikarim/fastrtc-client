@@ -58,10 +58,69 @@ Client Side Javascript library for FastRTC Server
      });
      ```
 
+### Available Callbacks:
+
+The FastRTC client provides several callback functions to handle different events:
+
+1. **Connection State Callbacks**:
+   - `onConnecting(callback)`: Called when the WebRTC connection is in the connecting state
+   - `onConnected(callback)`: Called when the WebRTC connection is established
+   - `onReadyToConnect(callback)`: Called when the client is ready to establish a connection
+
+2. **Data Handling Callbacks**:
+   - `getAdditionalInputs(callback)`: Called when the server requests additional inputs
+   - `onAdditionalOutputs(callback)`: Called when additional outputs are received from the server
+   - `onPauseDetectedReceived(callback)`: Called when a pause is detected in the audio stream
+   - `onResponseStarting(callback)`: Called when the server starts sending a response
+   - `onErrorReceived(callback)`: Called when an error is received from the server
+
+3. **UI Feedback Callbacks**:
+   - `setShowErrorCallback(callback)`: Sets a callback to display errors to the user
+   - `setClearErrorCallback(callback)`: Sets a callback to clear displayed errors
+   - `setUpdateAudioLevelCallback(callback)`: Called to update the audio level visualization
+   - `setUpdateVisualizationCallback(callback)`: Called to update audio visualization (frequency data)
+
+### Utility Methods:
+
+1. **Audio Analysis**:
+   - `getInputAudioLevel()`: Returns the current input audio level (0-1)
+   - `getDataArrayOutput()`: Returns frequency data for output audio visualization
+
+2. **Session Management**:
+   - `getWebRTCId()`: Returns the current WebRTC session ID
+
 ### Example Application:
 ```javascript
 const rtcClient = new FastRTCClient();
 
-rtcClient.onConnected(() => console.log("Connected"));
+// Set up connection state callbacks
+rtcClient.onReadyToConnect(() => console.log("Ready to connect"));
+rtcClient.onConnecting(() => console.log("Connecting..."));
+rtcClient.onConnected(() => console.log("Connected successfully!"));
+
+// Set up error handling
+rtcClient.setShowErrorCallback((error) => {
+    document.getElementById("error-display").textContent = error;
+    document.getElementById("error-display").style.display = "block";
+});
+rtcClient.setClearErrorCallback(() => {
+    document.getElementById("error-display").style.display = "none";
+});
+
+// Set up audio visualization
+rtcClient.setUpdateAudioLevelCallback(() => {
+    // Update audio level visualization every 100ms
+    setInterval(() => {
+        const level = rtcClient.getInputAudioLevel();
+        document.getElementById("audio-level").style.width = `${level * 100}%`;
+    }, 100);
+});
+
+// Handle server events
+rtcClient.onPauseDetectedReceived(() => console.log("Pause detected"));
+rtcClient.onResponseStarting(() => console.log("Response starting"));
+rtcClient.onErrorReceived((message) => console.error("Server error:", message));
+
+// Start the connection
 rtcClient.start();
 ```
