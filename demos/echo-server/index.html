@@ -1,0 +1,52 @@
+<html>
+
+<head>
+  <title>FastRTC Client Demo</title>
+  <script src="https://cdn.jsdelivr.net/gh/lalanikarim/fastrtc-client@v0.1.2/fastrtc-client.js"></script>
+</head>
+
+<body>
+  <h1>FastRTC Echo Server</h1>
+  <button id="start">Connect</button>
+  <button id="stop" style="display: none">Disconnect</button>
+  <h3>Logs</h3>
+  <pre class="logs"></pre>
+  <audio></audio>
+  <script defer>
+    let logs = document.querySelector("pre")
+    let startButton = document.querySelector("button#start")
+    let stopButton = document.querySelector("button#stop")
+    let client = FastRTCClient({
+      additional_outputs_url: null
+    })
+    client.onConnecting(() => {
+      logs.innerText += "Connecting to server.\n"
+      startButton.style.display = "none"
+      stopButton.style.display = "block"
+    })
+    client.onConnected(() => {
+      logs.innerText += "Connected to server.\n"
+    })
+    client.onReadyToConnect(() => {
+      logs.innerText += "Not connected to server.\n"
+      startButton.style.display = "block"
+      stopButton.style.display = "none"
+    })
+    client.onErrorReceived((error) => {
+      logs.innerText += `serverError received: ${error}\n`
+    })
+    client.onPauseDetectedReceived(() => {
+      logs.innerText += `pause detected event received. response will start now.\n`
+    })
+    client.onResponseStarting(() => {
+      logs.innerText += `response starting event received. audio will start playing now.\n`
+    })
+    client.setShowErrorCallback((error) => {
+      logs.innerText += `showError received: ${error}\n`
+    })
+    startButton.addEventListener("click", () => client.start())
+    stopButton.addEventListener("click", () => client.stop())
+  </script>
+</body>
+
+</html>
