@@ -1,8 +1,8 @@
 function FastRTCClient(
   {
     offer_url = "/webrtc/offer",
-    additional_inputs_url = "/input_hook",
-    additional_outputs_url = "/outputs",
+    additional_inputs_url = null,
+    additional_outputs_url = null,
     rtc_config = {},
     audioOutput = document.querySelector("audio"),
     enable_output_analyzer = true,
@@ -71,13 +71,11 @@ function FastRTCClient(
   }
 
   function showError(error) {
-    if (callbacks("showError")) {
-      callCallback("showError", error);
-      if (callbacks("clearError")) {
-        setTimeout(() => {
-          callCallback("clearError");
-        }, 5000);
-      }
+    callCallback("showError", error);
+    if (callbacks["clearError"]) {
+      setTimeout(() => {
+        callCallback("clearError");
+      }, 5000);
     }
   }
   function checkConnectionState() {
@@ -179,6 +177,8 @@ function FastRTCClient(
               },
               body: JSON.stringify({ ...additional_inputs, ...more_inputs }),
             });
+          } else {
+            console.error("additional_inputs_url not provided");
           }
         } else if (eventJson.type === "log") {
           if (eventJson.data === "pause_detected") {
@@ -243,13 +243,15 @@ function FastRTCClient(
         callCallback("updateVisualization");
       }
 
-      // create event stream to receive messages from /output
-      const eventSource = new EventSource(
-        `${additional_outputs_url}?webrtc_id=${webrtc_id}`,
-      );
-      eventSource.addEventListener("message", (event) => {
-        callCallback("additionalOutputs", event);
-      });
+      if (additional_outputs_url) {
+        // create event stream to receive messages from /output
+        const eventSource = new EventSource(
+          `${additional_outputs_url}?webrtc_id=${webrtc_id}`,
+        );
+        eventSource.addEventListener("message", (event) => {
+          callCallback("additionalOutputs", event);
+        });
+      }
     } catch (err) {
       clearTimeout(timeoutId);
       console.error("Error setting up WebRTC:", err);
