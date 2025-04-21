@@ -125,3 +125,102 @@ rtcClient.onErrorReceived((message) => console.error("Server error:", message));
 // Start the connection
 rtcClient.start();
 ```
+
+### Example Application - FastRTC Echo Server:
+
+#### server.py
+
+```python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "fastapi",
+#     "fastrtc[stt,tts,vad]",
+#     "uvicorn",
+# ]
+# ///
+from fastrtc import Stream, ReplyOnPause
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+
+
+def echo(audio):
+    yield audio
+
+
+stream = Stream(
+    handler=ReplyOnPause(echo),
+    modality="audio",
+    mode="send-receive")
+
+app = FastAPI()
+stream.mount(app)
+
+
+@app.get("/")
+async def _():
+    return HTMLResponse(content=open("index.html").read())
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("server:app")
+
+```
+
+#### index.html
+
+```html
+<html>
+
+<head>
+  <title>FastRTC Client Demo</title>
+  <script src="https://cdn.jsdelivr.net/gh/lalanikarim/fastrtc-client@v0.1.2/fastrtc-client.js"></script>
+</head>
+
+<body>
+  <h1>FastRTC Echo Server</h1>
+  <button id="start">Connect</button>
+  <button id="stop" style="display: none">Disconnect</button>
+  <h3>Logs</h3>
+  <pre class="logs"></pre>
+  <audio></audio>
+  <script defer>
+    let logs = document.querySelector("pre")
+    let startButton = document.querySelector("button#start")
+    let stopButton = document.querySelector("button#stop")
+    let client = FastRTCClient({
+      additional_outputs_url: null
+    })
+    client.onConnecting(() => {
+      logs.innerText += "Connecting to server.\n"
+      startButton.style.display = "none"
+      stopButton.style.display = "block"
+    })
+    client.onConnected(() => {
+      logs.innerText += "Connected to server.\n"
+    })
+    client.onReadyToConnect(() => {
+      logs.innerText += "Not connected to server.\n"
+      startButton.style.display = "block"
+      stopButton.style.display = "none"
+    })
+    client.onErrorReceived((error) => {
+      logs.innerText += `serverError received: ${error}\n`
+    })
+    client.onPauseDetectedReceived(() => {
+      logs.innerText += `pause detected event received. response will start now.\n`
+    })
+    client.onResponseStarting(() => {
+      logs.innerText += `response starting event received. audio will start playing now.\n`
+    })
+    client.setShowErrorCallback((error) => {
+      logs.innerText += `showError received: ${error}\n`
+    })
+    startButton.addEventListener("click", () => client.start())
+    stopButton.addEventListener("click", () => client.stop())
+  </script>
+</body>
+
+</html>
+```
