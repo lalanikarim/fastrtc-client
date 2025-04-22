@@ -13,7 +13,11 @@ Client Side Javascript library for FastRTC Server
 - **Input/Output Handling**: Supports additional input and output streams.
 
 ### Functions and Usage:
-1. **Initialization**:
+1. **Setup**:
+   ```html
+   <script src="https://cdn.jsdelivr.net/gh/lalanikarim/fastrtc-client/fastrtc-client.js"></script>
+   ```
+2. **Initialization**:
    ```javascript
    const rtcClient = new FastRTCClient({
        offer_url: "/webrtc/offer",
@@ -26,17 +30,17 @@ Client Side Javascript library for FastRTC Server
    });
    ```
 
-2. **Starting the Connection**:
+3. **Starting the Connection**:
    ```javascript
    rtcClient.start();
    ```
 
-3. **Stopping the Connection**:
+4. **Stopping the Connection**:
    ```javascript
    rtcClient.stop();
    ```
 
-4. **Setting Callbacks**:
+5. **Setting Callbacks**:
    - Example: Callback when connected
      ```javascript
      rtcClient.onConnected(() => {
@@ -44,14 +48,14 @@ Client Side Javascript library for FastRTC Server
      });
      ```
 
-5. **Audio Level Monitoring**:
+6. **Audio Level Monitoring**:
    - Input Audio Level:
      ```javascript
      const level = rtcClient.getInputAudioLevel();
      console.log("Input Audio Level:", level);
      ```
 
-6. **Visualization Callbacks**:
+7. **Visualization Callbacks**:
    - Example: Update Visualization:
      ```javascript
      rtcClient.setUpdateVisualizationCallback(() => {
